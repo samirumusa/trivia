@@ -89,7 +89,107 @@ You will need to provide detailed documentation of your API endpoints including 
   "6": "Sports"
 }
 ```
+`GET '/api/v1/questions/'`
 
+- Fetches a dictionary of questions in which the keys are the name of the columns and the value is the corresponding values. However, each unit represents a row of data.
+- Request Arguments: Number of pages
+- Returns: An object with a single key, `questions`, that contains an object with the following keys `answer`,`category`,`difficulty`, `id`, `question`,  key: value pairs.
+
+```json
+"questions": {
+      "answer": "Maya Angelou",
+      "category": 4,
+      "difficulty": 2,
+      "id": 5,
+      "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+    }
+```
+`POST '/api/v1/questions_delete/<int:id>'`
+
+- Deletion a question with a given id.
+- Request Arguments: ID
+- Returns: An object with two keys, `success` and `message', 
+
+```json
+{
+      "success": "True",
+      "message": "question ({id}) deleted  successfully!",
+    }
+```
+`POST '/api/v1/create_question'`
+
+- Create a new question.
+- Request Arguments: Formdata
+- Returns: An object with two keys, `success` and `message`, 
+
+```json
+{
+      "success": "True",
+      "message": "question created successfully!",
+    }
+```
+`POST '/api/v1/create_search'`
+
+- Create a new question.
+- Request Arguments: Formdata
+- Returns: An object with four keys, `success`, `message`,`questions`, `total_questions` 
+
+```json
+{
+      "success": "True",
+      "message": "question created successfully!",
+      "questions": {
+                    "answer": "Maya Angelou",
+                    "category": 4,
+                    "difficulty": 2,
+                    "id": 5,
+                    "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+                  },
+      "total_questions":1,
+    }
+```
+`POST '/api/v1/categories/<int:id>/questions`
+
+- Create a new question.
+- Request Arguments: ID
+- Request Body:
+- Returns: An object with four keys, `success`, `questions`, `total_questions`, `current_category`
+
+```json
+{
+      "success": "True",
+      "questions": {
+                    "answer": "Maya Angelou",
+                    "category": 4,
+                    "difficulty": 2,
+                    "id": 5,
+                    "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+                  },
+      "total_questions":1,
+      "current_category":4,
+    }
+```
+`POST '/api/v1/quizzes`
+
+- Create a new question.
+- Request Arguments: ID
+- Request Body: FormData
+- Returns: An object with four keys, `success`, `questions`, `total_questions`, `current_category`
+
+```json
+{
+      "success": "True",
+      "questions": {
+                    "answer": "Maya Angelou",
+                    "category": 4,
+                    "difficulty": 2,
+                    "id": 5,
+                    "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?",       
+                    "quiz_category":4,
+                  },
+      "total_questions":1,
+    }
+```
 ## Testing
 
 Write at least one test for the success and at least one error behavior of each endpoint using the unittest library.

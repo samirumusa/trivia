@@ -7,7 +7,7 @@ from unicodedata import category
 from xml.dom.minidom import TypeInfo
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import random
 
 from models import setup_db, Question, Category
@@ -15,28 +15,24 @@ from models import setup_db, Question, Category
 QUESTIONS_PER_PAGE = 10
 
 def create_app(test_config=None):
-    # create and configure the app
     app = Flask(__name__)
     setup_db(app)
-    
 
     """
-    @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
+    @DONE: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
     """
-    cors = CORS(app, resources={r'/*': {'origins': '*'}}, supports_credentials=True)
+    cors = CORS(app, resources={r'/*': {"origins": '*'}}, support_credentials=True)
     
     """
-    @TODO: Use the after_request decorator to set Access-Control-Allow
+    @DONE: Use the after_request decorator to set Access-Control-Allow
     """
-    """ @app.after_request
     def after_request(response):
-        response.headers.add("Access-Control-Allow-Origin", "http://localhost:3000")
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type, application/json')
-        response.headers.add('Access-Control-Allow-Headers', 'GET, POST, PATCH, DELETE, OPTIONS')
-        return response """
-        
+        header = response.headers
+        header['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+        header['Access-Control-Allow-Methods'] = 'OPTIONS, HEAD, GET, POST, DELETE, PUT'
+        return response
     """
-    @TODO:
+    @DONE:
     Create an endpoint to handle GET requests
     for all available categories.
     """
@@ -49,16 +45,16 @@ def create_app(test_config=None):
             for category in categories:
                 formatted_category.update({category.id:category.type})
             
-            return jsonify({
+            return (jsonify({
                 'categories':formatted_category,
                 'success':True
-            })
+            }))
         except:
             abort(404)
         
    
     """
-    @TODO:
+    @DONE:
     Create an endpoint to handle GET requests for questions,
     including pagination (every 10 questions).
     This endpoint should return a list of questions,
@@ -81,13 +77,11 @@ def create_app(test_config=None):
             
             categories = Category.query.all()
             current_category =  Category.query.first().type
-            #formatted_current_category = [ctgy.format() for ctgy in current_category]
-
+           
             formatted_category ={}
 
             for category in categories:
                 formatted_category.update({category.id:category.type})
-            #formatted_category = [category.format() for category in categories]
             return jsonify({
                 'success': True,
                 'questions':formatted_questions[start:end],
@@ -99,30 +93,29 @@ def create_app(test_config=None):
             abort(404)
 
     """
-    @TODO:
+    @DONE:
     Create an endpoint to DELETE question using a question ID.
-
     TEST: When you click the trash icon next to a question, the question will be removed.
     This removal will persist in the database and when you refresh the page.
     """
-    @app.route('/api/v1/questions_delete/<int:id>', methods =['POST'])
-   # @cross_origin()
-    def questions_delete(id):
-        
+    @app.route('/api/v1/questions_delete/<int:id>', methods =['POST','OPTIONS'])
+    def questions_delete(id):        
         try:
-            if(request.type == 'DELETE'):
-                #id = request.args.get('id', 1, type=int)
-                oneQuests = Question.query.filter(id).delete()
-                return jsonify({
-                    'success': True,
-                    'message':'question deleted successfully!',
-                    })
-            else:
-                pass
+                oneQuests = Question.query.filter(Question.id==id)
+                
+                if(oneQuests is None): abort(404)
+                else: 
+                        oneQuests.delete()
+                        
+                        return (jsonify({
+                            'success': True,
+                            'message':'question ({id}) deleted  successfully!',
+                            }))
+            
         except:
-             abort(404)
+             abort(400)
     """
-    @TODO:
+    @DONE:
     Create an endpoint to POST a new question,
     which will require the question and answer text,
     category, and difficulty score.
@@ -131,7 +124,7 @@ def create_app(test_config=None):
     the form will clear and the question will appear at the end of the last page
     of the questions list in the "List" tab.
     """
-    @app.route('/api/v1/create_question', methods=['POST'])
+    @app.route('/api/v1/create_question', methods=['POST', 'OPTIONS'])
     def create_question():
         try:
             content = request.get_json()
@@ -141,16 +134,15 @@ def create_app(test_config=None):
             category = content.get('category', None)
             add = Question(question=question, answer=answer,difficulty=difficulty,category=category)
             add.insert()
-            return jsonify({
+            return( jsonify({
                     'success': True,
                     'message':'question created successfully!',
-                    })
+                    }))
         except:
-           abort(404)
+           abort(422)
            
-           #return content
     """
-    @TODO:
+    @DONE:
     Create a POST endpoint to get questions based on a search term.
     It should return any questions for whom the search term
     is a substring of the question.
@@ -159,10 +151,9 @@ def create_app(test_config=None):
     only question that include that string within their question.
     Try using the word "title" to start.
     """
-    @app.route('/api/v1/create_search', methods=['POST'])
-    #@cross_origin()
+    @app.route('/api/v1/create_search', methods=['POST','OPTIONS'])
     def create_search():   
-          #try:     
+          try:     
             content = request.get_json()
             strg = content.get('searchTerm', None)
             qst = Question.query.all()
@@ -176,25 +167,23 @@ def create_app(test_config=None):
                                 "category":question.category,
                                 "answer":question.answer,
                                  })
-            #print( vars(currentCategory))
             
             formatted_questions = [quest.format() for quest in currentCategory]
             print(arr)
-            return jsonify({
+            return (jsonify({
                     'success': True,
                     'message':'question created successfully!',
                     'questions':arr,
                     'total_questions':len(arr),
                     'current_category':formatted_questions
-                    }) 
-          #except:
-            #abort(404)
-            #return 
+                    }) )
+          except:
+            abort(422)
      
                 
        
     """
-    @TODO:
+    @DONE:
     @DONE:
     Create a GET endpoint to get questions based on category.
 
@@ -205,20 +194,22 @@ def create_app(test_config=None):
     @app.route('/api/v1/categories/<int:id>/questions', methods =['GET'])
     def categories(id):
        try:
+            
             categories =Question.query.filter(id==Question.category).all()
             current_category =  Category.query.filter_by(id=Category.id).first().type
 
             formatted_questions = [quest.format() for quest in categories]
-            return jsonify({
+            print(formatted_questions)
+            return (jsonify({
                 'success': True,
                 'questions':formatted_questions,
                 'total_questions':len(formatted_questions),
                 'current_category':current_category,
-                })
+                }))
        except:
         abort(404)
     """
-    @TODO:
+    @DONE:
     Create a POST endpoint to get questions to play the quiz.
     This endpoint should take category and previous question parameters
     and return a random questions within the given category,
@@ -228,29 +219,19 @@ def create_app(test_config=None):
     one question at a time is displayed, the user is allowed to answer
     and shown whether they were correct or not.
     """
-
-    @app.route('/api/v1/quizzes', methods=['POST'])
-    #@cross_origin()
+    @app.route('/api/v1/quizzes/', methods=['POST'])
     def quizzes():
-       ## try:
+        try:
             content = request.get_json()
             previous_question = content.get('previous_questions', None)
             quiz_category = content.get('quiz_category', None)
-            id = quiz_category
-            print(type(quiz_category))
-            print(quiz_category)
             categories =Question.query.filter(Question.category==quiz_category['id']).all()
-            quest = []
-            moris=[quest.format() for quest in categories]
-            #return moris
-            
             random.shuffle(categories)
             for question in categories:
                 if (question.id in previous_question):
                     pass
                 else:
-                    #moris=[quest.format() for quest in question]
-                    return jsonify({
+                    return (jsonify({
                             'question':{"question":question.question,
                                         "id":question.id,
                                         "difficulty":question.difficulty,
@@ -259,24 +240,38 @@ def create_app(test_config=None):
                                         'quiz_category':quiz_category
                                         },
                             'success':True
-                        }) 
-            
-             
-        ##except:
-            ##abort()
-            ##return   
+                        }) )
+        except:
+            abort(404)  
     """
-    
-    @TODO:
+    @DONE:
     Create error handlers for all expected errors
     including 404 and 422.
     """
-    @app.errorhandler
-    def not_found():
-        return jsonify({
-            "success":False,
-            "error":404,
-            "message":"Not Found"},404)
-        
+    @app.errorhandler(404)
+    def not_found(error):
+        return (
+            jsonify({"success": False, "error": 404, "message": "resource not found"}),
+            404,
+        )
+
+    @app.errorhandler(422)
+    def unprocessable(error):
+        return (
+            jsonify({"success": False, "error": 422, "message": "unprocessable"}),
+            422,
+        )
+     
+    @app.errorhandler(400)
+    def bad_request(error):
+        return jsonify({"success": False, "error": 400, "message": "bad request"}), 400
+    """
+    @app.errorhandler(405)
+    def not_found(error):
+        return (
+            jsonify({"success": False, "error": 405, "message": "method not allowed"}),
+            405,
+        )
+         """
     return app
 
