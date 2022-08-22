@@ -12,7 +12,7 @@ class Question extends Component {
   flipVisibility() {
     this.setState({ visibleAnswer: !this.state.visibleAnswer });
   }
-
+ 
   render() {
     const { question, answer, category, difficulty } = this.props;
     return (

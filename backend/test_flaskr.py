@@ -7,6 +7,15 @@ from flaskr import create_app
 from models import setup_db, Question, Category
 
 
+from dotenv import load_dotenv
+load_dotenv()
+
+DATABASE_USERNAME= os.environ.get("DATABASE_USERNAME")
+DATABASE_PASSWORD = os.environ.get("DATABASE_PASSWORD")
+DATABASE_PORT=os.environ.get("DATABASE_PORT")
+DATABASE_NAME=os.environ.get("DATABASE_NAME")
+DATABASE_TEST_NAME=os.environ.get("DATABASE_TEST_NAME")
+
 class TriviaTestCase(unittest.TestCase):
         """This class represents the trivia test case"""
         def setUp(self):
@@ -14,7 +23,7 @@ class TriviaTestCase(unittest.TestCase):
             self.app = create_app()
             self.client = self.app.test_client
             self.database_name = "trivia_test"
-            self.database_path = "postgresql://postgres:postgres@localhost:5432/trivia_test"
+            self.database_path =  'postgresql://{}:{}@localhost:{}/{}'.format(DATABASE_USERNAME,DATABASE_PASSWORD,DATABASE_PORT,DATABASE_TEST_NAME)
             setup_db(self.app, self.database_path)
             # binds the app to the current context
             with self.app.app_context():
@@ -140,8 +149,6 @@ class TriviaTestCase(unittest.TestCase):
         @DONE
         Write at least one test for each test for successful operation and for expected errors.
         """
-
-
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()

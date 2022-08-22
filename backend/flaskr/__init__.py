@@ -1,10 +1,4 @@
-from json import dump
-from msilib import type_string
 import os
-import re
-from tokenize import String
-from unicodedata import category
-from xml.dom.minidom import TypeInfo
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS, cross_origin
@@ -12,12 +6,12 @@ import random
 
 from models import setup_db, Question, Category
 
+
 QUESTIONS_PER_PAGE = 10
 
 def create_app(test_config=None):
     app = Flask(__name__)
     setup_db(app)
-
     """
     @DONE: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
     """
@@ -98,7 +92,7 @@ def create_app(test_config=None):
     TEST: When you click the trash icon next to a question, the question will be removed.
     This removal will persist in the database and when you refresh the page.
     """
-    @app.route('/api/v1/questions_delete/<int:id>', methods =['POST','OPTIONS'])
+    @app.route('/api/v1/questions_delete/<int:id>/', methods =['POST','OPTIONS'])
     def questions_delete(id):        
         try:
                 oneQuests = Question.query.filter(Question.id==id)

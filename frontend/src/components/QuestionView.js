@@ -7,6 +7,7 @@ import $ from 'jquery';
 class QuestionView extends Component {
   constructor() {
     super();
+
     this.state = {
       questions: [],
       page: 1,
@@ -15,14 +16,12 @@ class QuestionView extends Component {
       currentCategory: null,
     };
   }
-
   componentDidMount() {
     this.getQuestions();
   }
-
   getQuestions = () => {
     $.ajax({
-      url: `/questions?page=${this.state.page}`, //TODO: update request URL
+      url: `/api/v1/questions?page=${this.state.page}`, //TODO: update request URL
       type: 'GET',
       success: (result) => {
         this.setState({
@@ -65,7 +64,7 @@ class QuestionView extends Component {
 
   getByCategory = (id) => {
     $.ajax({
-      url: `/categories/${id}/questions`, //TODO: update request URL
+      url: `/api/v1/categories/${id}/questions`, //TODO: update request URL
       type: 'GET',
       success: (result) => {
         this.setState({
@@ -84,7 +83,7 @@ class QuestionView extends Component {
 
   submitSearch = (searchTerm) => {
     $.ajax({
-      url: `/questions`, //TODO: update request URL
+      url: `/api/v1/create_search`, //TODO: update request URL
       type: 'POST',
       dataType: 'json',
       contentType: 'application/json',
@@ -112,7 +111,7 @@ class QuestionView extends Component {
     if (action === 'DELETE') {
       if (window.confirm('are you sure you want to delete the question?')) {
         $.ajax({
-          url: `/questions/${id}`, //TODO: update request URL
+          url: `/api/v1/question_delete/${id}`, //TODO: update request URL
           type: 'DELETE',
           success: (result) => {
             this.getQuestions();
@@ -135,7 +134,9 @@ class QuestionView extends Component {
               this.getQuestions();
             }}
           >
+            
             Categories
+    
           </h2>
           <ul>
             {Object.keys(this.state.categories).map((id) => (
@@ -145,7 +146,6 @@ class QuestionView extends Component {
                   this.getByCategory(id);
                 }}
               >
-                {this.state.categories[id]}
                 <img
                   className='category'
                   alt={`${this.state.categories[id].toLowerCase()}`}
@@ -167,6 +167,7 @@ class QuestionView extends Component {
               difficulty={q.difficulty}
               questionAction={this.questionAction(q.id)}
             />
+             
           ))}
           <div className='pagination-menu'>{this.createPagination()}</div>
         </div>
