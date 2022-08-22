@@ -163,7 +163,7 @@ One note before you delve into your tasks: for each endpoint, you are expected t
 ```
 `POST '/api/v1/create_search'`
 
-- Create a new question.
+- Search for a question that match the keywords.
 - Request Arguments: Formdata
 - Returns: An object with four keys, `success`, `message`,`questions`, `total_questions` 
 
