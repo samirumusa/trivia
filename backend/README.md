@@ -183,7 +183,7 @@ One note before you delve into your tasks: for each endpoint, you are expected t
 ```
 `POST '/api/v1/categories/<int:id>/questions`
 
-- Create a new question.
+- Questions based on categories.
 - Request Arguments: ID
 - Request Body:
 - Returns: An object with four keys, `success`, `questions`, `total_questions`, `current_category`
@@ -204,7 +204,7 @@ One note before you delve into your tasks: for each endpoint, you are expected t
 ```
 `POST '/api/v1/quizzes`
 
-- Create a new question.
+- deliver a single question that has not been answered.
 - Request Arguments: ID
 - Request Body: FormData
 - Returns: An object with four keys, `success`, `questions`, `total_questions`, `current_category`
