@@ -69,13 +69,13 @@ class TriviaTestCase(unittest.TestCase):
        
         """ '/api/v1/questions_delete/<int:id>' """
         def test_delete_question(self):
-            res = self.client().post('/api/v1/questions/6/')
+            res = self.client().delete('/api/v1/questions_delete/6')
             data = json.loads(res.data)
             self.assertEqual(data['success'],True)
 
         
         def test_404_delete_questions_response(self):
-            res = self.client().post('/api/v1/questions/1/')
+            res = self.client().delete('/api/v1/questions_delete/1/')
             data = json.loads(res.data)
             
             self.assertEqual(data.status_code,404)

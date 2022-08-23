@@ -92,13 +92,14 @@ def create_app(test_config=None):
     TEST: When you click the trash icon next to a question, the question will be removed.
     This removal will persist in the database and when you refresh the page.
     """
-    @app.route('/api/v1/questions_delete/<int:id>/', methods =['POST','OPTIONS'])
+    @app.route('/api/v1/questions_delete/<int:id>/', methods =['DELETE','OPTIONS'])
     def questions_delete(id):        
         try:
-                oneQuests = Question.query.filter(Question.id==id)
-                
-                if(oneQuests is None): abort(404)
-                else: 
+                        
+                    oneQuests = Question.query.filter(Question.id==id).one_or_none()
+                        
+                    if(oneQuests is None): abort(404)
+                    else: 
                         oneQuests.delete()
                         
                         return (jsonify({
@@ -153,14 +154,15 @@ def create_app(test_config=None):
             qst = Question.query.all()
             currentCategory = Question.query.join(Category, Question.category==Category.id)
             arr = []
+                
             for question in qst:
                 if question.question.find(strg) !=-1:
-                   arr.append({ "question":question.question,
-                                "id":question.id,
-                                "difficulty":question.difficulty,
-                                "category":question.category,
-                                "answer":question.answer,
-                                 })
+                    arr.append({ "question":question.question,
+                                    "id":question.id,
+                                    "difficulty":question.difficulty,
+                                    "category":question.category,
+                                    "answer":question.answer,
+                                    })
             
             formatted_questions = [quest.format() for quest in currentCategory]
             print(arr)
@@ -220,21 +222,40 @@ def create_app(test_config=None):
             previous_question = content.get('previous_questions', None)
             quiz_category = content.get('quiz_category', None)
             categories =Question.query.filter(Question.category==quiz_category['id']).all()
+            categories_empty =Question.query.all()
             random.shuffle(categories)
-            for question in categories:
-                if (question.id in previous_question):
-                    pass
-                else:
-                    return (jsonify({
-                            'question':{"question":question.question,
-                                        "id":question.id,
-                                        "difficulty":question.difficulty,
-                                        "category":question.category,
-                                        "answer":question.answer,
-                                        'quiz_category':quiz_category
-                                        },
-                            'success':True
-                        }) )
+            random.shuffle(categories_empty)
+            if quiz_category['id'] == 0:
+                for quest in categories_empty:
+                
+                   if (quest.id in previous_question):
+                        pass
+                   else:
+                        return (jsonify({
+                                    'question':{"question":quest.question,
+                                                "id":quest.id,
+                                                "difficulty":quest.difficulty,
+                                                "category":quest.category,
+                                                "answer":quest.answer,
+                                                'quiz_category':None
+                                                },
+                                    'success':True
+                                }) )
+            else:  
+                for question in categories:
+                    if (question.id in previous_question):
+                        pass
+                    else:
+                        return (jsonify({
+                                'question':{"question":question.question,
+                                            "id":question.id,
+                                            "difficulty":question.difficulty,
+                                            "category":question.category,
+                                            "answer":question.answer,
+                                            'quiz_category':quiz_category
+                                            },
+                                'success':True
+                            }) )
         except:
             abort(404)  
     """
