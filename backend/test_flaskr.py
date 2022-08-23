@@ -79,18 +79,18 @@ class TriviaTestCase(unittest.TestCase):
             data = json.loads(res.data)
             
             self.assertEqual(data.status_code,404)
-            self.assertEqual(data.success,False)
-            self.assertEqual(data.message,"Not Found")
+            self.assertEqual(data['success'],False)
+            self.assertEqual(data['message'],"Not Found")
             
        
         """ '/api/v1/create_question' """
         def test_post_questions_response(self):
-            res = self.client().post('/api/v1/create_question/', json={'question':'Who is the founder of Udacity?',"answer":"Sebastian Thrun","difficulty":"2","category":1,})
+            res = self.client().post('/api/v1/questions', json={'question':'Who is the founder of Udacity?',"answer":"Sebastian Thrun","difficulty":"2","category":1,})
             data = json.loads(res.data)
             self.assertEqual(data['success'],True)
         
         def test_404_post_questions_response(self):
-            res = self.client().post('http://127.0.0.1:5000/api/v1/questions')
+            res = self.client().post('/api/v1/questions')
             data = json.loads(res.data)
             
             self.assertEqual(data['error'],404)
