@@ -60,29 +60,29 @@ def create_app(test_config=None):
     ten questions per page and pagination at the bottom of the screen for three pages.
     Clicking on the page numbers should update the questions.
     """
-    @app.route('/api/v1/questions/', methods =['GET'])
+    @app.route('/api/v1/questions/', methods =['GET','OPTIONS'])
     def questions():
         try:
             page = request.args.get('page', 1, type=int)
-            start = (page - 1) * 10
-            end = start + 10
-            quests = Question.query.all()
-            formatted_questions = [quest.format() for quest in quests]
-            
-            categories = Category.query.all()
-            current_category =  Category.query.first().type
-           
-            formatted_category ={}
-
-            for category in categories:
-                formatted_category.update({category.id:category.type})
-            return jsonify({
-                'success': True,
-                'questions':formatted_questions[start:end],
-                'categories':formatted_category,
-                'total_questions':len(formatted_questions),
-                'current_category':current_category
-                })
+            if page <1: 
+                abort(404)
+            else:
+                start = (page - 1) * 10
+                end = start + 10
+                quests = Question.query.all()
+                formatted_questions = [quest.format() for quest in quests]
+                categories = Category.query.all()
+                current_category =  Category.query.first().type
+                formatted_category ={}
+                for category in categories:
+                    formatted_category.update({category.id:category.type})
+                return jsonify({
+                    'success': True,
+                    'questions':formatted_questions[start:end],
+                    'categories':formatted_category,
+                    'total_questions':len(formatted_questions),
+                    'current_category':current_category
+                    })
         except:
             abort(404)
 
@@ -92,7 +92,7 @@ def create_app(test_config=None):
     TEST: When you click the trash icon next to a question, the question will be removed.
     This removal will persist in the database and when you refresh the page.
     """
-    @app.route('/api/v1/questions_delete/<int:id>/', methods =['DELETE','OPTIONS'])
+    @app.route('/api/v1/questions_delete/<int:id>', methods =['DELETE','OPTIONS'])
     def questions_delete(id):        
         try:
                         
@@ -203,7 +203,7 @@ def create_app(test_config=None):
                 'current_category':current_category,
                 }))
        except:
-        abort(404)
+          abort(404)
     """
     @DONE:
     Create a POST endpoint to get questions to play the quiz.
@@ -227,7 +227,6 @@ def create_app(test_config=None):
             random.shuffle(categories_empty)
             if quiz_category['id'] == 0:
                 for quest in categories_empty:
-                
                    if (quest.id in previous_question):
                         pass
                    else:
@@ -237,14 +236,14 @@ def create_app(test_config=None):
                                                 "difficulty":quest.difficulty,
                                                 "category":quest.category,
                                                 "answer":quest.answer,
-                                                'quiz_category':None
+                                                'quiz_category':0
                                                 },
                                     'success':True
                                 }) )
             else:  
                 for question in categories:
                     if (question.id in previous_question):
-                        pass
+                        continue
                     else:
                         return (jsonify({
                                 'question':{"question":question.question,
@@ -256,6 +255,7 @@ def create_app(test_config=None):
                                             },
                                 'success':True
                             }) )
+                return
         except:
             abort(404)  
     """
@@ -276,7 +276,6 @@ def create_app(test_config=None):
             jsonify({"success": False, "error": 422, "message": "unprocessable"}),
             422,
         )
-     
     @app.errorhandler(400)
     def bad_request(error):
         return jsonify({"success": False, "error": 400, "message": "bad request"}), 400
